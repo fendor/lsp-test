@@ -15,6 +15,8 @@ import           Language.Haskell.LSP.Types.Lens
 import           Language.Haskell.LSP.Messages
 import           Language.Haskell.LSP.Test.Exceptions
 import qualified Data.HashMap.Strict           as HM
+import           Data.List (dropWhileEnd)
+import           Data.Char (isSpace)
 
 getAllMessages :: Handle -> IO [B.ByteString]
 getAllMessages h = do
@@ -31,7 +33,7 @@ getAllMessages h = do
 getNextMessage :: Handle -> IO B.ByteString
 getNextMessage h = do
   headers <- getHeaders h
-  case read . init <$> lookup "Content-Length" headers of
+  case read . dropWhileEnd isSpace <$> lookup "Content-Length" headers of
     Nothing   -> error "Couldn't read Content-Length header"
     Just size -> B.hGet h size
 
